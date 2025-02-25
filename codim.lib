@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-version="$Id: derlog.lib  2025-02-25 $";
+version="$Id: codim.lib  2025-02-25 $";
 category="Singularities";
 info="
 LIBRARY: codim.lib          compute codimension using Mond and
@@ -26,7 +26,7 @@ proc codim(ideal ff)
 COMPUTE:  Ae-codimension of the map germ given by the ideal ff;
 RETURN:   Ae-codimension (integer)
 REMARK:   This version of codim is only beta. Please send bugs and
-          comments to: <https://github.com>
+          comments to: <https://github.com/cuspidalcoffee>
           Known to work on Singular version 4.2.0.
 EXAMPLE:  example codim; shows an example"
 {
