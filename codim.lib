@@ -1,0 +1,111 @@
+///////////////////////////////////////////////////////////////////////////////
+version="$Id: derlog.lib  2025-02-25 $";
+category="Singularities";
+info="
+LIBRARY: codim.lib          compute codimension using Mond and
+                            Nuno-Ballesteros' algorithm from
+                            [MNB], Section 2.2.8
+
+AUTHORS: J.J. Nuno-Ballesteros,     juan.nuno@uv.es
+         D. Mond,                   D.M.Q.Mond@warwick.ac.uk
+
+IMPLEMENTATION: C. Munoz-Cabello,   chmuozca@uv.es
+
+PROCEDURES:
+    codim(f);                 compute codimension
+
+BIBLIOGRAPHY:
+    [MNB] D. Mond and J.J. Nuno-Ballesteros,
+            Singularities of mappings, in "Handbook of geometry and topology of
+            singularities III", 81--144, Springer, Cham
+";
+
+//-----------------------------------------------------------------------------
+proc codim(ideal ff)
+"USAGE:   codim(ff);  ff = ideal
+COMPUTE:  Ae-codimension of the map germ given by the ideal ff;
+RETURN:   Ae-codimension (integer)
+REMARK:   This version of codim is only beta. Please send bugs and
+          comments to: <https://github.com>
+          Known to work on Singular version 4.2.0.
+EXAMPLE:  example codim; shows an example"
+{
+    // OriGinal BaseRing
+    ring og_br = basering;
+
+    int n = nvars(og_br);
+    int p = size(ff);
+
+    ring S = 32003, x(1 .. n), dp;
+    ring T = 32003, y(1 .. p), dp;
+  
+    setring S;
+
+    ideal ff = fetch(og_br, ff);
+    map f = T, ff;
+
+    if (n < p)
+    {
+        ideal C = 0;
+    }
+    else
+    {
+        // Ramification ideal 
+        ideal C = minor(jacob(ff), p); 
+    }
+
+    setring T;
+    ideal I = preimage(S, f, C);
+    poly g = I[1];
+    ideal J = jacob(g);
+
+    setring S;
+
+    if (n >= p)
+    {
+        qring SC = std(C);
+        map f = imap(S, f);
+    }
+   
+    ideal fJ = f(J);
+
+    setring T;
+
+    if (n < p)
+    {
+        ideal JJ = preimage(S, f, fJ);
+    }
+    else
+    {
+        ideal JJ = preimage(SC, f, fJ); 
+
+        ring Ts = 32003, y(1 .. p), ds;
+        ideal JJ = imap(T, JJ);
+        JJ = std(JJ);
+
+        ideal I = imap(T, I);
+        ideal J = imap(T, J);
+    }
+
+    module M = modulo(JJ, J + I);
+    vdim(std(M));
+}
+example
+{
+    "EXAMPLE:";
+    echo = 2;
+
+    // Source dimension less than target dimension
+
+    ring source1 = 0, (x,y), ds;
+    ideal i = x2, y2, xy + x3 + y3;
+    codim(i);
+
+    // Source dimension greater than target dimension
+
+    ring source2 = 0, (x, y, z), ds;
+    ideal i = x2 - y2 + z2 + xyz, xy - yz + xz;
+    codim(i);
+}
+
+///////////////////////////////////////////////////////////////////////////////
